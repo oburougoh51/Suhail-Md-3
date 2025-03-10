@@ -2,7 +2,7 @@ name: WhatsApp Bot Always On
 
 on:
   schedule:
-    - cron: '*/10 * * * *' # Backup: runs every 10 minutes
+  - cron: '0 */6 * * *' # Runs every 6 hours
   workflow_dispatch: # Optional: manual trigger
 
 jobs:
@@ -22,11 +22,14 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Start WhatsApp bot
+      - name: Install PM2
+        run: npm install -g pm2
+
+      - name: Start WhatsApp bot with PM2
         run: |
-          echo "Starting WhatsApp bot..."
-          while true; do
-            npm start
-            echo "Bot crashed! Restarting in 5 seconds..."
-            sleep 5
-          done
+          echo "Starting WhatsApp bot with PM2..."
+          pm2 start npm --name "whatsapp-bot" -- start
+          pm2 save
+
+      - name: Check PM2 status
+        run: pm2 list
