@@ -2,13 +2,17 @@ name: WhatsApp Bot Always On
 
 on:
   schedule:
-  - cron: '0 */6 * * *' # Runs every 6 hours
+    - cron: '0 * * * *'
   workflow_dispatch: # Optional: manual trigger
+
+concurrency:
+  group: whatsapp-bot
+  cancel-in-progress: true
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
-    timeout-minutes: 360 # Max 6 hours (GitHub limit)
+    timeout-minutes: 360  # Maximum of 6 hours
 
     steps:
       - name: Checkout code
@@ -22,14 +26,11 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Install PM2
-        run: npm install -g pm2
-
-      - name: Start WhatsApp bot with PM2
+      - name: Run WhatsApp bot in infinite loop
         run: |
-          echo "Starting WhatsApp bot with PM2..."
-          pm2 start npm --name "whatsapp-bot" -- start
-          pm2 save
-
-      - name: Check PM2 status
-        run: pm2 list
+          echo "Starting WhatsApp bot..."
+          while true; do
+            npm start
+            echo "Bot crashed or exited. Restarting in 5 seconds..."
+            sleep 5
+          done
