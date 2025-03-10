@@ -1,0 +1,32 @@
+name: WhatsApp Bot Always On
+
+on:
+  schedule:
+    - cron: '*/10 * * * *' # Backup: runs every 10 minutes
+  workflow_dispatch: # Optional: manual trigger
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360 # Max 6 hours (GitHub limit)
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Start WhatsApp bot
+        run: |
+          echo "Starting WhatsApp bot..."
+          while true; do
+            npm start
+            echo "Bot crashed! Restarting in 5 seconds..."
+            sleep 5
+          done
